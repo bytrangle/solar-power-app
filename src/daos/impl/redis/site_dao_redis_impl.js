@@ -96,7 +96,17 @@ const findById = async (id) => {
  */
 const findAll = async () => {
   // START CHALLENGE #1
-  return [];
+  const client = redis.getClient();
+  const setKey = keyGenerator.getSiteIDsKey();
+  const siteIds = await client.smembersAsync(setKey);
+  const sites = [];
+  for (const siteId of siteIds) {
+    const siteHash = await client.hgetallAsync(siteId);
+    if (siteHash) {
+      sites.push(remap(siteHash));
+    }
+  }
+  return sites
   // END CHALLENGE #1
 };
 /* eslint-enable */
