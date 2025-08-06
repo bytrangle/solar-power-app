@@ -174,7 +174,6 @@ const findByGeo = async (lat, lng, radius, radiusUnit) => {
 const findByGeoWithExcessCapacity = async (lat, lng, radius, radiusUnit) => {
   /* eslint-disable no-unreachable */
   // Challenge #5, remove the next line...
-  return [];
 
   const client = redis.getClient();
 
@@ -199,6 +198,15 @@ const findByGeoWithExcessCapacity = async (lat, lng, radius, radiusUnit) => {
   const sitesInRadiusCapacitySortedSetKey = keyGenerator.getTemporaryKey();
 
   // START Challenge #5
+  setOperationsPipeline.zinterstoreAsync(
+    sitesInRadiusCapacitySortedSetKey,
+    2, // Number of sorted sets to intersect
+    sitesInRadiusSortedSetKey, // First sorted set with site IDs
+    keyGenerator.getCapacityRankingKey(), // Capacity ranking sorted set
+    'WEIGHTS', // Use weights to multiply the scores
+    0, // Weight for the first set (site IDs)
+    1, // The resulting scores come from the capacity ranking sorted set
+  );
   // END Challenge #5
 
   // Expire the temporary sorted sets after 30 seconds, so that we
